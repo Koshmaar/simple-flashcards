@@ -1,26 +1,32 @@
-{
-  "1": {
-    "question": "2. What is this flag --advertise-addr for?",
-    "answer": "This flag configures the IP address for the manager node and The other nodes in the swarm must be able to access the manager at the IP address."
+[
+  {
+    "question": "What is this flag --advertise-addr for?",
+    "answer": "For docker swarm init. This flag configures the IP address for the manager node and the other nodes in the swarm must be able to access the manager at the IP address.",
+    "id": "1"
   },
-  "2": {
-    "question": "3. How do you know the current status of the swarm?",
-    "answer": "docker info // you can find the info under the swarm section"
+  {
+    "question": "How do you know the current status of the swarm?",
+    "answer": "docker info // you can find the info under the swarm section",
+    "id": "2"
   },
-  "3": {
-    "question": "4. Which command do you use to find the information about the nodes in the swarm?",
-    "answer": "docker node ls"
+  {
+    "question": "Which command do you use to find the information about the nodes in the swarm?",
+    "answer": "docker node ls",
+    "id": "3"
   },
-  "4": {
-    "question": "5. How to add another manager to the swarm?",
-    "answer": "// it generate the instructions for the manager to be added\ndocker swarm join-token manager"
+  {
+    "question": "How to add another manager to the swarm?",
+    "answer": "// it generate the instructions for the manager to be added\ndocker swarm join-token manager",
+    "id": "4"
   },
-  "5": {
-    "question": "6. How to add another worker node to the swarm?",
-    "answer": "// it generate the instructions for the worker to be added\ndocker swarm join-token worker"
+  {
+    "question": "How to add another worker node to the swarm?",
+    "answer": "// it generate the instructions for the worker to be added\ndocker swarm join-token worker",
+    "id": "5"
   },
-  "6": {
-    "question": "7. How to run the container?",
-    "answer": "docker run <image>"
+  {
+    "question": "How to run the container?",
+    "answer": "docker run <image>",
+    "id": "6"
   }
-}
+]
