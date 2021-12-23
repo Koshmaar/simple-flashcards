@@ -1,9 +1,8 @@
 
 // Script to be used on html documents converted from LibreOffice odt files
-function foo() {
+function harvest() {
 let firstId = "start"
-let lastId = "0a99"
-let category = "kodekloud"
+let category = ""
 let count = 259;
 
 let node = document.getElementById(firstId)
@@ -23,8 +22,6 @@ while (node != null) {
         node = next;
     }
 
-    //console.log(question_txt);
-
     node = next;
     if (node == null) {
         break;
@@ -41,8 +38,6 @@ while (node != null) {
         }
         node = next;
     }
-     //console.log(answer_txt);
-     
 
     questions[count] = {
         "question": question_txt,
@@ -56,4 +51,4 @@ while (node != null) {
    }
    return questions;
 }
-foo()
+harvest()

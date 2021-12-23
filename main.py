@@ -69,15 +69,31 @@ def program(db: Dict, avoid_asked: bool, ignored_categories: List, linearly: boo
     asked = [] # contains indexes of asked questions
     next_flashcard = 0
     covered = 0
+    problematic = []
 
     try:
         while True:
+
+            was_problematic = False
             if linearly:
                 next_flashcard += 1
             else:
                 for i in range(10):
-                    next_flashcard = randrange(len(db)-1) + 1
-                    flashcard = db[(next_flashcard)]
+
+                    # random.randrange(stop)  -> [0, 1, 2, ..., stop-1]                  
+
+                    if len(problematic) > 2 and randrange(100) > 50:
+                        print("Let's refresh sth...")
+                        which = randrange(len(problematic))
+                        print(which)
+                        next_flashcard = problematic[which]
+                        print(next_flashcard)
+                        flashcard = db[next_flashcard]
+                        was_problematic = True
+                        break
+
+                    next_flashcard = randrange(len(db))
+                    flashcard = db[next_flashcard]
                     cat = flashcard.get("category")
                     # todo perhaps its better to filter questions at beginning
                     if (avoid_asked and next_flashcard in asked) or (cat is not None and cat in ignored_categories):
@@ -97,9 +113,19 @@ def program(db: Dict, avoid_asked: bool, ignored_categories: List, linearly: boo
             input()
 
             print("A: " + flashcard["answer"])
-            print("\n\n")
-            input()
+            print("\n")
+            answer = input()
+            if answer:
+                # typing anything means that the question was answered wrongly
+                print("Wrong answer! Will repeat soon.")
+                problematic.append(next_flashcard)
+            else:
+                if was_problematic:
+                    problematic.remove(next_flashcard)
+            print(problematic)
+            
 
+            print("\n")            
             covered += 1
             if (covered % 10) == 0:
                 print(f"You have finished {covered} questions out of {len(db)}!\n")

@@ -14,7 +14,7 @@ Type the name of flashcard file to open and press enter, or press enter for defa
 docker.json
 Loaded db from docker.json
 Loaded 6 flashcards
-Do you want to have random questions (r,R) or go sequentially (press any key) ?
+Do you want to have random questions (press any key) or go sequentially (s, S) ?
 r
 Do you want to ignore some category (default = []) ?
 ```
@@ -32,20 +32,31 @@ The answer is displayed after pressing enter.
 
 # Flashcard file format
 
-The flashcard file format is json, with simple structure of main dictionary, and
-each flashcard is another dict, with two keys, "question" and "answer".
+The flashcard file format is json, with simple structure of list, and
+each flashcard is dict, with three keys, "id", "question" and "answer".
 
 Optional key is "category".
 
-There is attached file harvest.js which creates sample file. 
+There are attached sample harvest js files, which take content from html websites to create sample file. 
+
+
+# Characteristic
+
+Simple, and therefore very adaptable. 
+Doesn't use any non-standard python libraries - so no venv or dependencies installation needs.
+Uses Python 3.6+ compatible syntax.
+It's free :)
 
 
 # TODO
-+ make it possible to download flashcard files from internet, for easy sharing
-+ change dictionary with keys, to array
-- allow user to flag questions which he failed, and the program would return to them more often (even accross restarts)
+ - remember failed questions (even accross restarts)
 - stronger typing: FlashcardDb and Flashcard classess
 - make it support DMOC type of questions (line by line rendering), when answer is in list format
 - make "answer" store the potential answers, and new field "correct" would store the correct answer
 - add mode for interactively adding new questions
 - add ability to tag questions (better than categorization?)
+
+## Done
++ make it possible to download flashcard files from internet, for easy sharing
++ allow user to flag questions which he failed, and the program would return to them more often
++ change dictionary with keys, to array
