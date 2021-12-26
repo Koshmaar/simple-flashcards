@@ -1,13 +1,89 @@
+import os
 import sys
 import json
 from random import randrange
-from typing import Dict, List
+from typing import Dict, List, Any
+import dataclasses
+from dataclasses import dataclass, field
+
 import urllib.request
 import urllib.response
 import urllib.parse
 from urllib.error import URLError, HTTPError
 
-DEFAULT_FILENAME = 'python.json'
+DEFAULT_FILENAME = 'docker copy.json'
+
+
+class EnhancedJSONEncoder(json.JSONEncoder):
+        def default(self, o):
+            if dataclasses.is_dataclass(o):
+                return dataclasses.asdict(o)
+            return super().default(o)
+
+
+def deserialize_dataclass(DataClass, json_string) -> Any:
+    """ Convert the JSON object represented by the string into the dataclass
+        specified.
+    """
+    json_obj = json.loads(json_string)
+    dc_data = {field.name: field.type(json_obj[field.name])
+                    for field in dataclasses.fields(DataClass)}
+    return DataClass(**dc_data)
+
+
+@dataclass 
+class Flashcard:
+    question: str
+    answer: str
+    id: int
+
+
+@dataclass 
+class Params:
+    sequential: bool = False  # if false, is random
+    # ignored_categories: List[str] = []
+    ignored_categories: List[str] = field(default_factory=lambda: [])
+
+    avoid_asked: bool = True
+    filename: str = ''
+
+
+@dataclass
+class Session:
+    # both store ids of Flashcards
+    asked: list = field(default_factory=lambda: [])
+    problematic: list = field(default_factory=lambda: [])
+    next_flashcard: int = 0
+    covered: int = 0
+
+    def save_to_file(self, filename: str):
+        with open(filename, 'w') as f:
+            content = json.dumps(self, cls=EnhancedJSONEncoder)
+            f.write(content)
+
+
+def load_session_from_file(filename: str) -> Session:
+    with open(filename) as f:
+        file = f.read()
+        session = deserialize_dataclass(Session, file)
+        return session
+
+
+# class Program:
+
+#     def __init__(self):
+#         self.covered = 0
+#         self.params = Params()
+
+
+#     def get_next_flashcard(self) -> Flashcard:
+#         pass
+
+
+#     def display_flashcard(self):
+#         pass
+
+
 
 
 def load_flashcards(filename: str) -> Dict:
@@ -30,7 +106,10 @@ def load_flashcards(filename: str) -> Dict:
     return db
 
 
-def process_params():
+
+def process_params() -> Params:
+
+    params = Params()
 
     if len(sys.argv) == 2:
         default_filename = sys.argv[1]
@@ -41,75 +120,86 @@ def process_params():
     filename = input()
     if len(filename) == 0:
         filename = default_filename
+    params.filename = filename
 
-    db = load_flashcards(filename)
-
-    print(f"Loaded flashcards from {filename}")
-    print(f"Loaded {len(db)} flashcards")
+    print(f"Loading flashcards from {params.filename}")
     print("Do you want to have random questions (press any key) or go sequentially (S, s) ?")
 
     mode = input()
     if mode.lower() == "s":
-        linearly = True
+        params.sequential = True
     else:
-        linearly = False
+        params.sequential = False
 
-    ignored_categories = []
-    print(f"Do you want to ignore some category (default = {ignored_categories}) ?")
+    params.ignored_categories = []
+    print(f"Do you want to ignore some category (default = {params.ignored_categories}) ?")
     cat = input()
     if cat:
-        ignored_categories.append(cat)
+        params.ignored_categories.append(cat)
 
-    avoid_asked = True
-    return db, avoid_asked, ignored_categories, linearly
+    params.avoid_asked = True
+    return params 
+
+def get_session(flashcard_filename: str) -> Session:
+    session_filename = flashcard_filename + ".session" 
+    continue_session = False
+    if os.path.exists(session_filename):
+        print(f"Do you want to continue session from {session_filename}? Enter for Yes, anything else for No.")
+        session = load_session_from_file(session_filename)
+        print(session)
+        continue_session = input()
+        if continue_session != "":
+            session = Session()
+            print("Starting new session")
+        else:
+            print("Continuing...")
+    else:
+        session = Session()
+        print("Starting new session")
+    return session
 
 
-def program(db: Dict, avoid_asked: bool, ignored_categories: List, linearly: bool):
+def program(params: Params):
 
-    asked = [] # contains indexes of asked questions
-    next_flashcard = 0
-    covered = 0
-    problematic = []
+    db = load_flashcards(params.filename)
+    print(f"Loaded {len(db)} flashcards")
+    session = get_session(params.filename)
 
     try:
         while True:
 
             was_problematic = False
-            if linearly:
-                next_flashcard += 1
+            if params.sequential:
+                session.next_flashcard += 1
             else:
                 for i in range(10):
-
                     # random.randrange(stop)  -> [0, 1, 2, ..., stop-1]                  
-
-                    if len(problematic) > 2 and randrange(100) > 50:
+                    if len(session.problematic) > 2 and randrange(100) > 50:
                         print("Let's refresh sth...")
-                        which = randrange(len(problematic))
-                        print(which)
-                        next_flashcard = problematic[which]
-                        print(next_flashcard)
-                        flashcard = db[next_flashcard]
+                        which = randrange(len(session.problematic))
+                        session.next_flashcard = session.problematic[which]
+                        flashcard = db[session.next_flashcard]
                         was_problematic = True
                         break
 
-                    next_flashcard = randrange(len(db))
-                    flashcard = db[next_flashcard]
+                    session.next_flashcard = randrange(len(db))
+                    flashcard = db[session.next_flashcard]
                     cat = flashcard.get("category")
                     # todo perhaps its better to filter questions at beginning
-                    if (avoid_asked and next_flashcard in asked) or (cat is not None and cat in ignored_categories):
+                    if (params.avoid_asked and session.next_flashcard in session.asked) or (cat is not None and cat in params.ignored_categories):
                         continue
                     else:
                         break
 
-            asked.append(next_flashcard)
-            flashcard = db[(next_flashcard)]
+            session.asked.append(session.next_flashcard)
+            flashcard = db[(session.next_flashcard)]
 
             question = flashcard["question"]
             if isinstance(question, list):
                 for line in question:
                     print(line)
             else:
-                print(f"Q {next_flashcard}: " + question)
+                print(f"Q {flashcard['id']}: " + question)
             input()
 
             print("A: " + flashcard["answer"])
@@ -118,26 +208,27 @@ def program(db: Dict, avoid_asked: bool, ignored_categories: List, linearly: boo
             if answer:
                 # typing anything means that the question was answered wrongly
                 print("Wrong answer! Will repeat soon.")
-                problematic.append(next_flashcard)
+                session.problematic.append(session.next_flashcard)
             else:
                 if was_problematic:
-                    problematic.remove(next_flashcard)
-            print(problematic)
-            
+                    session.problematic.remove(session.next_flashcard)           
 
             print("\n")            
-            covered += 1
-            if (covered % 10) == 0:
-                print(f"You have finished {covered} questions out of {len(db)}!\n")
+            session.covered += 1
+            if (session.covered % 10) == 0:
+                print(f"You have finished {session.covered} questions out of {len(db)}!\n")
 
     except (KeyboardInterrupt, KeyError):
-        print(f"You have finished {covered} questions!")
+        print(f"You have finished {session.covered} questions!")
+        session_filename = params.filename + ".session"
+        session.save_to_file(session_filename)
+        print(f"Saved session to {session_filename}")
         exit(0)
 
 
 def main():
     params = process_params()
-    program(*params)
+    program(params)
     
     # from .scripts import process_flashcards
     # db = load_flashcards(filename)

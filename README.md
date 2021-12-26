@@ -49,14 +49,17 @@ It's free :)
 
 
 # TODO
- - remember failed questions (even accross restarts)
-- stronger typing: FlashcardDb and Flashcard classess
+- refactor logic, add stronger typing: FlashcardDb and Flashcard classess
+- simple view (screen is cleared after every question, so there's no history view)
 - make it support DMOC type of questions (line by line rendering), when answer is in list format
 - make "answer" store the potential answers, and new field "correct" would store the correct answer
 - add mode for interactively adding new questions
 - add ability to tag questions (better than categorization?)
+- maybe some nice curses-based screen UI, with menus for easy navigation, with default etc.
+- dockerize it and add API, so that it can be run on backend and controlled by some frontend
 
 ## Done
++ save sessions, which remember failed questions (accross restarts) and other settings
 + make it possible to download flashcard files from internet, for easy sharing
 + allow user to flag questions which he failed, and the program would return to them more often
 + change dictionary with keys, to array
