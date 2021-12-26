@@ -1,4 +1,5 @@
-from typing import Dict, List, Any
+from random import randrange
+from typing import Dict, List, Any, Tuple
 from dataclasses import dataclass, field
 
 
@@ -8,6 +9,7 @@ class Flashcard:
     answer: str
     id: int
     category: str = ""
+    domc: list = field(default_factory=lambda: [])
 
 
 @dataclass 
@@ -27,17 +29,52 @@ class Session:
     covered: int = 0
 
 
+class Program:
 
+    def __init__(self, session: Session, params: Params, flashcards: List[Flashcard]):
+        self.session = session
+        self.params = params
+        self.flashcards = flashcards
 
-# class Program:
+    # Returns flashcard and bool whether it was problematic
+    def get_next_flashcard(self) -> Tuple[Flashcard, bool]:
+        if self.params.sequential:
+            self.session.next_flashcard += 1
+        else:
+            for i in range(10):
+                # random.randrange(stop)  -> [0, 1, 2, ..., stop-1]
+                if len(self.session.problematic) > 2 and randrange(100) > 50:
+                    print("Let's refresh sth...")
+                    which = randrange(len(self.session.problematic))
+                    self.session.next_flashcard = self.session.problematic[which]
+                    flashcard = self.flashcards[self.session.next_flashcard]
+                    return flashcard, True
 
-#     def __init__(self):
-#         self.covered = 0
-#         self.params = Params()
+                self.session.next_flashcard = randrange(len(self.flashcards))
+                flashcard = self.flashcards[self.session.next_flashcard]
+                cat = flashcard.category
+                # todo perhaps its better to filter questions at beginning
+                if (self.params.avoid_asked and self.session.next_flashcard in self.session.asked) or (
+                        cat != "" and cat in self.params.ignored_categories):
+                    continue
+                else:
+                    break
 
-#     def get_next_flashcard(self) -> Flashcard:
-#         pass
+        self.session.asked.append(self.session.next_flashcard)
+        flashcard: Flashcard = self.flashcards[self.session.next_flashcard]
+        return flashcard, False
 
-#     def display_flashcard(self):
-#         pass
+    def display_flashcard(self, flashcard: Flashcard):
+        print(f"Question {flashcard.id}: " + flashcard.question)
+        input()
+
+        if len(flashcard.domc) > 0:
+            letter_code: int = ord("a")
+            for line in flashcard.domc:
+                print(chr(letter_code) + ") " + line)
+                input()
+                letter_code += 1
+
+        print("Answer: " + flashcard.answer)
+        print("\n")
 

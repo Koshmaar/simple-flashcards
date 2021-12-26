@@ -3,8 +3,7 @@ from random import randrange, seed
 from typing import Dict, List, Any
 
 from src.methods import get_session, load_flashcards, save_session_to_file
-from src.objects import Flashcard, Params, Session
-
+from src.objects import Flashcard, Params, Session, Program
 
 DEFAULT_FILENAME = 'docker copy.json'
 
@@ -44,51 +43,17 @@ def process_params() -> Params:
 
 
 def program(params: Params):
-
+    seed()
     db = load_flashcards(params.filename)
     print(f"Loaded {len(db)} flashcards")
     session: Session = get_session(params.filename)
-    seed()
+    program = Program(session, params, db)
 
     try:
         while True:
+            flashcard, was_problematic = program.get_next_flashcard()
+            program.display_flashcard(flashcard)
 
-            was_problematic = False
-            if params.sequential:
-                session.next_flashcard += 1
-            else:
-                for i in range(10):
-                    # random.randrange(stop)  -> [0, 1, 2, ..., stop-1]                  
-                    if len(session.problematic) > 2 and randrange(100) > 50:
-                        print("Let's refresh sth...")
-                        which = randrange(len(session.problematic))
-                        session.next_flashcard = session.problematic[which]
-                        flashcard = db[session.next_flashcard]
-                        was_problematic = True
-                        break
-
-                    session.next_flashcard = randrange(len(db))
-                    flashcard = db[session.next_flashcard]
-                    cat = flashcard.category
-                    # todo perhaps its better to filter questions at beginning
-                    if (params.avoid_asked and session.next_flashcard in session.asked) or (cat != "" and cat in params.ignored_categories):
-                        continue
-                    else:
-                        break
-
-            session.asked.append(session.next_flashcard)
-            flashcard: Flashcard = db[(session.next_flashcard)]
-
-            question = flashcard.question
-            if isinstance(question, list):
-                for line in question:
-                    print(line)
-            else:
-                print(f"Q {flashcard.id}: " + question)
-            input()
-
-            print("A: " + flashcard.answer)
-            print("\n")
             answer = input()
             if answer:
                 # typing anything means that the question was answered wrongly
