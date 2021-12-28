@@ -56,8 +56,10 @@ In `harvesting/` there are sample js files, which take content from html website
 
 # TODO
 - simple view (screen is cleared after every question, so there's no history view)
-- make "answer" store the potential answers, and new field "correct" would store the correct answer
-- add metadata section to flashcard files
+- make "answer" store the potential answers, and new field "correct" would store the correct answer, 
+  which would allow for program verification 
+- add metadata section to flashcard files, so information like author, license or other info could be stored
+- support `.config` file with options like default_cards_dir, default_session_dir 
 - add ability to tag questions (better than categorization?)
 - add unit tests
 - maybe some nice curses-based screen UI, with menus for easy navigation, with defaults etc.
@@ -65,6 +67,7 @@ In `harvesting/` there are sample js files, which take content from html website
 - add frontend for quizzes, ie. 55 random questions, setting time limit, calculating score etc.
 
 ## Done
++ remember sessions locally also for decks loaded from internet
 + flag -q which skips all config questions (accepts defaults) and goes directly to quiz
 + add mode for interactively adding new questions
 + make it support DMOC type of questions (line by line rendering), when answer is in list format

@@ -10,22 +10,9 @@ import urllib.parse
 from urllib.error import URLError, HTTPError
 
 
-def save_session_to_file(session: Session, filename: str):
-    with open(filename, 'w') as f:
-        content = json.dumps(session, cls=EnhancedJSONEncoder, indent=2)
-        f.write(content)
-
-
-def load_session_from_file(filename: str) -> Session:
-    with open(filename) as f:
-        file = f.read()
-        session = deserialize_dataclass(Session, file)
-        return session
-
-
 def load_deck(filename: str) -> List[Flashcard]:
     json_flashcards = []
-    if filename.startswith("http://"):
+    if filename.startswith("http://") or filename.startswith("https://"):
         req = urllib.request.Request(url=filename)
         try:
             resp = urllib.request.urlopen(req, timeout=5)
@@ -62,9 +49,39 @@ def save_deck(filename: str, flashcards: List[Flashcard]):
         f.write(content)
 
 
-def get_session(flashcard_filename: str, quick_start: bool) -> Session:
-    session_filename = flashcard_filename + ".session" 
-    if os.path.exists(session_filename):
+def hash_filename(filename: str) -> str:
+    import hashlib
+    return str(int(hashlib.sha256(filename.encode('utf-8')).hexdigest(), 16) % 10 ** 8)
+
+
+def convert_potential_url_to_hash(filename: str) -> str:
+    if filename.startswith("http://") or filename.startswith("https://"):
+        filename = hash_filename(filename)
+    return filename
+
+
+def save_session_to_file(session: Session, filename: str) -> str:
+    filename = convert_potential_url_to_hash(filename)
+
+    with open(filename + ".session", 'w') as f:
+        content = json.dumps(session, cls=EnhancedJSONEncoder, indent=2)
+        f.write(content)
+    return filename
+
+
+def load_session_from_file(filename: str) -> Session:
+    filename = convert_potential_url_to_hash(filename)
+
+    with open(filename + ".session" ) as f:
+        file = f.read()
+        session = deserialize_dataclass(Session, file)
+        return session
+
+
+def get_session(deck_filename: str, quick_start: bool) -> Session:
+    session_filename = convert_potential_url_to_hash(deck_filename)
+
+    if os.path.exists(session_filename + ".session"):
         if not quick_start:
             print(f"Do you want to continue session from {session_filename}? Enter for Yes, anything else for No.")
             session = load_session_from_file(session_filename)

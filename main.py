@@ -76,8 +76,7 @@ def start_learning(params: Params):
 
     except (KeyboardInterrupt, KeyError):
         print(f"You have finished {session.covered} questions!")
-        session_filename = params.filename + ".session"
-        save_session_to_file(session, session_filename)
+        session_filename = save_session_to_file(session, params.filename)
         print(f"Saved session to {session_filename}")
         exit(0)
 
