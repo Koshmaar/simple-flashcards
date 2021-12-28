@@ -1,20 +1,20 @@
 import json
 
 
-def process_flashcards(db: dict, save_filename: str): 
+def process_flashcards(db: list, save_filename: str): 
     # could be used for various purposes, just change logic
     # in this case it was used for removing unnecessary indexes from question body
     
-    for key,value in db.items():
-        s = key + "."
-        if s in value["question"]:
-            value["question"] = value["question"].replace(s, "").strip()
+    for card in db:
+        s = card["id"] + "."
+        if s in card["question"]:
+            card["question"] = card["question"].replace(s, "").strip()
 
-        s = str(int(key)+1) + "."
-        if s in value["question"]:
-            value["question"] = value["question"].replace(s, "").strip()
+        s = str(int(card["id"])+1) + "."
+        if s in card["question"]:
+            card["question"] = card["question"].replace(s, "").strip()
 
-        value["id"] = key
+        card["id"] = card["id"]
 
     new_db = json.dumps(db, indent=2) 
     with open(save_filename + ".mod", 'w') as file:

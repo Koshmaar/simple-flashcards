@@ -37,7 +37,7 @@ each flashcard is dict, with three keys, "id", "question" and "answer".
 
 Optional key is "category".
 
-There are attached sample harvest js files, which take content from html websites to create sample file. 
+Optional key is "domc", which should be a list, storing potential answers, displayed one by one.
 
 
 # Characteristic
@@ -47,18 +47,28 @@ Doesn't use any non-standard python libraries - so no venv or dependencies insta
 Uses Python 3.6+ compatible syntax.
 It's free :)
 
+In `harvesting/` there are sample js files, which take content from html websites to create sample file.
+
+
+# Glossary
+* Flashcard or card - question and answer pair
+* Deck - group of cards
 
 # TODO
-- refactor logic, add stronger typing: FlashcardDb and Flashcard classess
 - simple view (screen is cleared after every question, so there's no history view)
-- make it support DMOC type of questions (line by line rendering), when answer is in list format
 - make "answer" store the potential answers, and new field "correct" would store the correct answer
-- add mode for interactively adding new questions
+- add metadata section to flashcard files
 - add ability to tag questions (better than categorization?)
-- maybe some nice curses-based screen UI, with menus for easy navigation, with default etc.
+- add unit tests
+- maybe some nice curses-based screen UI, with menus for easy navigation, with defaults etc.
 - dockerize it and add API, so that it can be run on backend and controlled by some frontend
+- add frontend for quizzes, ie. 55 random questions, setting time limit, calculating score etc.
 
 ## Done
++ flag -q which skips all config questions (accepts defaults) and goes directly to quiz
++ add mode for interactively adding new questions
++ make it support DMOC type of questions (line by line rendering), when answer is in list format
++ refactor logic, add stronger typing: FlashcardDb and Flashcard classess
 + save sessions, which remember failed questions (accross restarts) and other settings
 + make it possible to download flashcard files from internet, for easy sharing
 + allow user to flag questions which he failed, and the program would return to them more often

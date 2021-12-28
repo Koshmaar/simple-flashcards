@@ -2,31 +2,43 @@
   {
     "question": "What is this flag --advertise-addr for?",
     "answer": "For docker swarm init. This flag configures the IP address for the manager node and the other nodes in the swarm must be able to access the manager at the IP address.",
-    "id": "1"
+    "id": 1,
+    "category": "",
+    "domc":
   },
   {
     "question": "How do you know the current status of the swarm?",
     "answer": "docker info // you can find the info under the swarm section",
-    "id": "2"
+    "id": 2,
+    "category": "",
+    "domc": ""
   },
   {
     "question": "Which command do you use to find the information about the nodes in the swarm?",
     "answer": "docker node ls",
-    "id": "3"
+    "id": 3,
+    "category": "",
+    "domc": ""
   },
   {
     "question": "How to add another manager to the swarm?",
     "answer": "// it generate the instructions for the manager to be added\ndocker swarm join-token manager",
-    "id": "4"
+    "id": 4,
+    "category": "",
+    "domc": ""
   },
   {
     "question": "How to add another worker node to the swarm?",
     "answer": "// it generate the instructions for the worker to be added\ndocker swarm join-token worker",
-    "id": "5"
+    "id": 5,
+    "category": "",
+    "domc": ""
   },
   {
     "question": "How to run the container?",
     "answer": "docker run <image>",
-    "id": "6"
+    "id": 6,
+    "category": "",
+    "domc": ""
   }
 ]

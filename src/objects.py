@@ -2,12 +2,13 @@ from random import randrange
 from typing import Dict, List, Any, Tuple
 from dataclasses import dataclass, field
 
+# todo put classess in separate files, with their respective methods?
 
 @dataclass 
 class Flashcard:
-    question: str
-    answer: str
-    id: int
+    question: str = ""
+    answer: str = ""
+    id: int = 0
     category: str = ""
     domc: list = field(default_factory=lambda: [])
 
@@ -18,6 +19,7 @@ class Params:
     ignored_categories: List[str] = field(default_factory=lambda: [])
     avoid_asked: bool = True
     filename: str = ''
+    quick_start: bool = False
 
 
 @dataclass
@@ -68,7 +70,7 @@ class Program:
         print(f"Question {flashcard.id}: " + flashcard.question)
         input()
 
-        if len(flashcard.domc) > 0:
+        if isinstance(flashcard.domc, list) and len(flashcard.domc) > 0:
             letter_code: int = ord("a")
             for line in flashcard.domc:
                 print(chr(letter_code) + ") " + line)
